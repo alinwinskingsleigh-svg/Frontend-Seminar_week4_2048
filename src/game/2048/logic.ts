@@ -1,9 +1,14 @@
-/**
- * 2048 게임에서, Map을 특정 방향으로 이동했을 때 결과를 반환하는 함수입니다.
- * @param map 2048 맵. 빈 공간은 null 입니다.
- * @param direction 이동 방향
- * @returns 이동 방향에 따른 결과와 이동되었는지 여부
- */
+// 2048 게임의 계산 로직
+
+type Cell = number | null;
+export type Map2048 = Cell[][];
+type Direction = "up" | "left" | "right" | "down";
+type RotateDegree = 0 | 90 | 180 | 270;
+type DirectionDegreeMap = Record<Direction, RotateDegree>;
+
+// 🔹 gained(점수) 추가
+export type MoveResult = { result: Map2048; isMoved: boolean; gained: number };
+
 export const moveMapIn2048Rule = (
   map: Map2048,
   direction: Direction,
@@ -12,11 +17,12 @@ export const moveMapIn2048Rule = (
 
   const rotatedMap = rotateMapCounterClockwise(map, rotateDegreeMap[direction]);
 
-  const { result, isMoved } = moveLeft(rotatedMap);
+  const { result, isMoved, gained } = moveLeft(rotatedMap);
 
   return {
     result: rotateMapCounterClockwise(result, revertDegreeMap[direction]),
     isMoved,
+    gained,
   };
 };
 
@@ -62,37 +68,37 @@ const rotateMapCounterClockwise = (
 
 const moveLeft = (map: Map2048): MoveResult => {
   const movedRows = map.map(moveRowLeft);
-  const result = movedRows.map((movedRow) => movedRow.result);
-  const isMoved = movedRows.some((movedRow) => movedRow.isMoved);
-  return { result, isMoved };
+  const result = movedRows.map((m) => m.result);
+  const isMoved = movedRows.some((m) => m.isMoved);
+  const gained = movedRows.reduce((sum, m) => sum + m.gained, 0);
+  return { result, isMoved, gained };
 };
 
-const moveRowLeft = (row: Cell[]): { result: Cell[]; isMoved: boolean } => {
+const moveRowLeft = (row: Cell[]): { result: Cell[]; isMoved: boolean; gained: number } => {
   const reduced = row.reduce(
-    (acc: { lastCell: Cell; result: Cell[] }, cell) => {
+    (acc: { lastCell: Cell; result: Cell[]; gained: number }, cell) => {
       if (cell === null) {
         return acc;
       } else if (acc.lastCell === null) {
         return { ...acc, lastCell: cell };
       } else if (acc.lastCell === cell) {
-        return { result: [...acc.result, cell * 2], lastCell: null };
+        const merged = cell * 2;
+        return {
+          result: [...acc.result, merged],
+          lastCell: null,
+          gained: acc.gained + merged,
+        };
       } else {
-        return { result: [...acc.result, acc.lastCell], lastCell: cell };
+        return { result: [...acc.result, acc.lastCell], lastCell: cell, gained: acc.gained };
       }
     },
-    { lastCell: null, result: [] },
+    { lastCell: null, result: [], gained: 0 },
   );
 
   const result = [...reduced.result, reduced.lastCell];
-  const resultRow = Array.from(
-    { length: row.length },
-    (_, i) => result[i] ?? null,
-  );
-
-  return {
-    result: resultRow,
-    isMoved: row.some((cell, i) => cell !== resultRow[i]),
-  };
+  const resultRow = Array.from({ length: row.length }, (_, i) => result[i] ?? null);
+  const isMoved = row.some((cell, i) => cell !== resultRow[i]);
+  return { result: resultRow, isMoved, gained: reduced.gained };
 };
 
 const rotateDegreeMap: DirectionDegreeMap = {
@@ -108,10 +114,3 @@ const revertDegreeMap: DirectionDegreeMap = {
   down: 90,
   left: 0,
 };
-
-type Cell = number | null;
-export type Map2048 = Cell[][];
-type Direction = "up" | "left" | "right" | "down";
-type RotateDegree = 0 | 90 | 180 | 270;
-type DirectionDegreeMap = Record<Direction, RotateDegree>;
-type MoveResult = { result: Map2048; isMoved: boolean };

@@ -1,18 +1,21 @@
 import { useGame } from './hooks/useGame';
+import './app.css';
 
+type Cell = number | null;
 
 export default function App() {
-  const { map, over, reset } = useGame();
+  const { map, over, score, reset } = useGame();
 
   return (
     <div style={{ padding: 16 }}>
       <h1>2048 (128 만들면 종료)</h1>
       <div style={{ marginBottom: 8 }}>
         <button onClick={reset}>새 게임</button>
+        <span style={{ marginLeft: 12 }}>Score: <b>{score}</b></span>
         {over && <span style={{ marginLeft: 12, fontWeight: 700 }}>게임 종료 🎉</span>}
       </div>
 
-      {/* 간단 렌더링 */}
+      {/* 보드 렌더링 */}
       <div
         style={{
           display: 'grid',
@@ -24,8 +27,8 @@ export default function App() {
           width: 'max-content',
         }}
       >
-        {map.flatMap((row, r) =>
-          row.map((v, c: number) => (
+        {map.flatMap((row: Cell[], r: number) =>
+          row.map((v: Cell, c: number) => (
             <div
               key={`${r}-${c}`}
               style={{
@@ -43,7 +46,7 @@ export default function App() {
       </div>
 
       <p style={{ marginTop: 12, color: '#666' }}>
-        방향키로 움직여보세요. 새로고침해도 현재 보드가 유지돼요.
+        방향키로 움직여보세요. 새로고침해도 현재 보드와 점수가 유지됩니다.
       </p>
     </div>
   );
