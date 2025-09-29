@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { moveMapIn2048Rule, type Map2048 } from '../game/2048/logic'; // 네 코드가 있는 파일 경로에 맞춰 import
+type Cell = number | null;
 
 const LS_KEY = 'game2048';
 
@@ -27,7 +28,7 @@ const spawnRandomTile = (map: Map2048): Map2048 => {
 
   const { r, c } = empty[Math.floor(Math.random() * empty.length)];
   const value = Math.random() < 0.9 ? 2 : 4;
-  const next = map.map(row => [...row]);
+  const next = map.map((row: Cell[])=> [...row]);
   next[r][c] = value;
   return next;
 };
@@ -40,7 +41,7 @@ const initMap = (): Map2048 => {
 };
 
 const has128 = (map: Map2048) =>
-  map.some(row => row.some(v => v === 128));
+  map.some((row: Cell[]) => row.some((v: Cell) => v === 128));
 
 export function useGame() {
   // 복원 시도
