@@ -1,5 +1,5 @@
 import { useGame } from './hooks/useGame';
-import './app.css';
+
 
 type Cell = number | null;
 
