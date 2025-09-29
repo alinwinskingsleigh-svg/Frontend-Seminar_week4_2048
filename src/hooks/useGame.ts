@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { moveMapIn2048Rule, type Map2048 } from '../game/logic'; // 네 코드가 있는 파일 경로에 맞춰 import
+import { moveMapIn2048Rule, type Map2048 } from '../game/2048/logic'; // 네 코드가 있는 파일 경로에 맞춰 import
 
 const LS_KEY = 'game2048';
 
