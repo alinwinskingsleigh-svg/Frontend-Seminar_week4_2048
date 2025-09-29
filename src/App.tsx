@@ -1,5 +1,5 @@
 import { useGame } from './hooks/useGame';
-import './app.css'; // 선택: 간단한 스타일
+type Cell = number | null;
 
 export default function App() {
   const { map, over, reset } = useGame();
@@ -24,8 +24,8 @@ export default function App() {
           width: 'max-content',
         }}
       >
-        {map.flatMap((row, r) =>
-          row.map((v, c) => (
+        {map.flatMap((row: Cell[], r: number) =>
+          row.map((v: Cell, c: number) => (
             <div
               key={`${r}-${c}`}
               style={{
